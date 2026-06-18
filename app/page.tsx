@@ -6,6 +6,9 @@ export default function Home() {
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
 
+  // Calculate word count dynamically on every re-render
+  const wordCount = content.trim() === '' ? 0 : content.trim().split(/\s+/).length;
+
   return (
     <div className="w-screen h-screen bg-[#020604] bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08),transparent_70%)] flex items-center justify-center p-6 font-sans">
       
@@ -24,7 +27,7 @@ export default function Home() {
         {/* LEFT PANEL: Sidebar Note Library */}
         <aside className="w-72 border-r border-emerald-950/40 bg-black/40 flex flex-col z-10">
           
-          {/* Sidebar Header - Clean, professional layout with a single glowing state dot */}
+          {/* Sidebar Header */}
           <div className="p-4 border-b border-emerald-950/30 bg-black/20 flex justify-between items-center">
             <h2 className="text-[11px] font-bold tracking-[0.2em] text-zinc-400 uppercase flex items-center gap-2 font-mono">
               <span className="w-1 h-1 bg-[#7CEA9C] inline-block shadow-[0_0_6px_#7CEA9C]"></span>
@@ -75,7 +78,7 @@ export default function Home() {
         {/* RIGHT PANEL: The Main Writing Canvas */}
         <div className="flex-1 flex flex-col bg-transparent relative z-10">
           
-          {/* Top Info Bar - Zero text fluff, just clean tracking lines and date */}
+          {/* Top Info Bar - Clean tracking header */}
           <div className="px-8 py-3 border-b border-emerald-950/30 bg-black/20 flex justify-between items-center text-[10px] font-mono text-zinc-500 tracking-wider">
             <div className="flex items-center gap-2">
               <span className="w-1 h-1 bg-emerald-800 rounded-full"></span>
@@ -89,29 +92,33 @@ export default function Home() {
           {/* Writing Canvas Enclosure */}
           <div className="flex-1 p-8 md:p-12 flex flex-col gap-6 relative">
             
-            {/* Title Block - Crisp, clean, large serif typography with subtle gradient boundary rule */}
+            {/* Title Block - Bulletproof Controlled Input */}
             <div className="relative">
               <input 
                 type="text" 
                 placeholder="Untitled Entry" 
+                value={title || ''}
+                onChange={(e) => setTitle(e.target.value)}
                 className="bg-transparent text-zinc-100 placeholder-zinc-800 focus:outline-none text-3xl font-serif font-bold tracking-tight w-full caret-[#55D6BE]"
               />
-              {/* Sharp architectural accent line under title */}
+              {/* Architectural accent line under title */}
               <div className="absolute -bottom-3 left-0 w-full h-[1px] bg-gradient-to-r from-emerald-950 via-emerald-900/20 to-transparent"></div>
             </div>
 
-            {/* Main Content Body (Pure distraction-free writing viewport) */}
+            {/* Main Content Body - Bulletproof Controlled Textarea */}
             <textarea 
               placeholder="Write your thoughts..."
+              value={content || ''}
+              onChange={(e) => setContent(e.target.value)}
               className="bg-transparent text-zinc-300 placeholder-zinc-800 focus:outline-none text-lg leading-relaxed flex-1 resize-none font-serif tracking-wide pt-4 caret-[#7CEA9C]"
             ></textarea>
 
             {/* Premium Minimalist Footer */}
             <div className="flex justify-between items-center text-[10px] font-mono border-t border-emerald-950/30 pt-4 text-zinc-500 tracking-widest">
               <div>
-                WORDS: <span className="text-zinc-300">0</span>
+                WORDS: <span className="text-zinc-300">{wordCount}</span>
               </div>
-              {/* Micro green glint pulsing node in the corner */}
+              {/* Micro green glint pulsing node */}
               <div className="text-[#7CEA9C]/80 flex items-center gap-2 font-semibold">
                 <span className="w-1 h-1 rounded-full bg-[#7CEA9C] shadow-[0_0_6px_#7CEA9C] animate-pulse"></span>
                 READY
