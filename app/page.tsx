@@ -24,6 +24,7 @@ export default function Home() {
   const [password, setPassword] = useState('');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [statusMessage, setStatusMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
+  const saveTimeout = React.useRef<NodeJS.Timeout | null>(null);
 
   const formatSidebarDate = () => {
     const now = new Date();
@@ -44,7 +45,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!user) {
+    if (!user?.id) {
       setNotes([]);
       return;
     }
@@ -62,7 +63,7 @@ export default function Home() {
     };
 
     fetchNotes();
-  }, [user]);
+  }, [user?.id]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,11 +103,15 @@ export default function Home() {
     }
   };
 
-  const updateActiveNote = async (field: 'title' | 'content', value: string) => {
+  const updateActiveNote = (field: 'title' | 'content', value: string) => {
     if (!activeNoteId || !user) return;
     const updatedDate = formatSidebarDate();
     setNotes((prev) => prev.map((n) => n.id === activeNoteId ? { ...n, [field]: value, updated_at: updatedDate } : n));
-    await supabase.from('notes').update({ [field]: value, updated_at: updatedDate }).eq('id', activeNoteId);
+
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    saveTimeout.current = setTimeout(async () => {
+      await supabase.from('notes').update({ [field]: value, updated_at: updatedDate }).eq('id', activeNoteId);
+    }, 500);
   };
 
   const deleteNote = async (idToDelete: string, e: React.MouseEvent) => {
