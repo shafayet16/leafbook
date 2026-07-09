@@ -31,7 +31,7 @@ export default function AuthGateway({
   if (statusMessage?.type === 'success') {
     return (
       <div className="w-screen h-screen bg-[#020604] bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.12),transparent_70%)] flex items-center justify-center font-sans antialiased p-6">
-        <div className="w-full max-w-sm p-8 border border-emerald-900/40 bg-[#0b0910] flex flex-col items-center gap-5 text-center shadow-[0_0_80px_rgba(2,20,10,0.6)] rounded-sm relative">
+        <div className="w-full max-w-sm p-6 sm:p-8 border border-emerald-900/40 bg-[#0b0910] flex flex-col items-center gap-5 text-center shadow-[0_0_80px_rgba(2,20,10,0.6)] rounded-sm relative">
           <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#7CEA9C]" />
           <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[#7CEA9C]" />
           <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-[#7CEA9C]" />
@@ -74,7 +74,7 @@ export default function AuthGateway({
     <div className="w-screen h-screen bg-[#020604] flex items-center justify-center font-sans antialiased">
       <form 
         onSubmit={handleAuth} 
-        className="w-full max-w-sm p-8 border border-zinc-900 bg-[#0b0910] flex flex-col gap-5 shadow-2xl rounded-sm"
+        className="w-full max-w-sm p-6 sm:p-8 border border-zinc-900 bg-[#0b0910] flex flex-col gap-5 shadow-2xl rounded-sm"
       >
         <div className="flex flex-col gap-1 text-center mb-2">
           <h2 className="text-lg font-bold text-zinc-100 tracking-tight">

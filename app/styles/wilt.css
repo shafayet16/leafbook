@@ -1,0 +1,44 @@
+@keyframes leafShiver {
+  0%   { transform: translateX(0) rotateZ(0deg); }
+  25%  { transform: translateX(0.2px) rotateZ(0.05deg); }
+  50%  { transform: translateX(-0.2px) rotateZ(-0.05deg); }
+  75%  { transform: translateX(0.1px) rotateZ(0.02deg); }
+  100% { transform: translateX(0) rotateZ(0deg); }
+}
+
+@keyframes fadeToAmber {
+  0%   { background-color: rgba(16, 185, 129, 0.0); }
+  100% { background-color: rgba(180, 120, 60, 0.15); }
+}
+
+@keyframes desaturateIcon {
+  0%   { filter: saturate(1) drop-shadow(0 0 2px rgba(124,234,156,0.3)); }
+  100% { filter: saturate(0.3) drop-shadow(0 0 2px rgba(180,140,80,0.25)); }
+}
+
+.sidebar-note-wilted {
+  animation: fadeToAmber 0.6s ease forwards,
+             leafShiver 12s ease-in-out infinite alternate;
+  background: linear-gradient(
+    105deg,
+    rgba(170, 110, 50, 0.25) 0%,
+    rgba(140, 90, 40, 0.12) 40%,
+    transparent 70%
+  );
+  border-left: 2px solid rgba(200, 150, 90, 0.6);
+  border-radius: 0 6px 6px 0;
+  box-shadow: inset 0 0 15px rgba(180, 120, 60, 0.15);
+  transition: all 0.4s ease;
+}
+
+.sidebar-leaf-wilted {
+  animation: desaturateIcon 0.5s ease forwards;
+  color: rgba(200, 150, 90, 0.9);
+  filter: drop-shadow(0 0 3px rgba(180, 140, 80, 0.4));
+}
+
+.sidebar-title-wilted {
+  color: rgba(200, 170, 120, 0.85);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  transition: color 0.5s ease, text-shadow 0.5s ease;
+}
