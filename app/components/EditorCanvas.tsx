@@ -290,9 +290,6 @@ export default function EditorCanvas({
     .map((id) => allNotes.find((n) => n.id === id))
     .filter((n): n is Note => Boolean(n));
 
-  // we keep the variable for the VineNav, but no longer use it for editor visuals
-  // const wilted = isWilted(activeNote.updated_at, nowMs); // removed
-
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && tagInput.trim() !== '') {
       e.preventDefault();
@@ -354,8 +351,9 @@ export default function EditorCanvas({
     }
   };
 
-  return (
-    <div className="flex-1 p-4 sm:p-8 md:p-12 flex flex-col gap-4 sm:gap-5 relative min-w-0">
+    return (
+    <div className="flex-1 p-4 sm:p-8 md:p-12 flex flex-col gap-4 sm:gap-5 min-w-0 h-full">
+      {/* 1. Vine Nav – fixed height */}
       <VineNav
         folderName={activeFolderName}
         trail={trail}
@@ -364,6 +362,7 @@ export default function EditorCanvas({
         nowMs={nowMs}
       />
 
+      {/* 2. Title + Preview button */}
       <div className="relative flex items-start justify-between gap-3 sm:gap-4">
         <input 
           type="text" 
@@ -383,14 +382,12 @@ export default function EditorCanvas({
               ? 'border-[#7CEA9C]/50 text-[#7CEA9C] bg-emerald-950/30'
               : 'border-emerald-950/50 text-zinc-500 hover:text-zinc-300 hover:border-emerald-800/40'
           }`}
-        >
-          {isPreview ? 'Editing' : 'Preview'}
-        </button>
+        />
         <div className="absolute -bottom-3 left-0 w-full h-[1px] bg-gradient-to-r from-emerald-950 via-emerald-900/20 to-transparent"></div>
       </div>
 
-      {/* Folder + tags row */}
-      <div className="flex flex-wrap items-center gap-3 -mt-2">
+      {/* 3. Folder + Tags – fixed height */}
+      <div className="flex flex-wrap items-center gap-3">
         <select
           value={activeNote.folder_id ?? ''}
           onChange={(e) => setNoteFolder(e.target.value === '' ? null : e.target.value)}
@@ -428,111 +425,115 @@ export default function EditorCanvas({
         </div>
       </div>
 
-      {isPreview ? (
-        <div
-          style={
-            activeNote.content 
-              ? { textShadow: '-1px -0.5px 0px rgba(34, 211, 238, 0.35), 1px 0.5px 0px rgba(52, 211, 153, 0.3)' } 
-              : {}
-          }
-          className="flex-1 overflow-y-auto text-[#f8fafc] text-lg leading-relaxed pt-4 font-mono tracking-wide
-            [&_h1]:text-2xl [&_h1]:font-extrabold [&_h1]:mb-3 [&_h1]:mt-2
-            [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-2 [&_h2]:mt-4
-            [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mb-2 [&_h3]:mt-3
-            [&_p]:mb-3
-            [&_strong]:font-bold
-            [&_em]:italic
-            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-3
-            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-3
-            [&_li]:mb-1
-            [&_a]:underline [&_a]:underline-offset-2
-            [&_code]:bg-black/30 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-sm [&_code]:text-[0.9em]
-            [&_pre]:bg-black/30 [&_pre]:border [&_pre]:border-white/10 [&_pre]:p-4 [&_pre]:rounded-sm [&_pre]:overflow-x-auto [&_pre]:mb-3
-            [&_blockquote]:border-l-2 [&_blockquote]:border-white/20 [&_blockquote]:pl-4 [&_blockquote]:opacity-70 [&_blockquote]:italic
-            [&_hr]:border-white/10 [&_hr]:my-4"
-        >
-          {activeNote.content.trim() === '' ? (
-            <p className="opacity-40 italic">Nothing to preview yet.</p>
-          ) : (
-            <ReactMarkdown
-              components={{
-                a: ({ href, children }) => {
-                  if (href?.startsWith('leafbook-note:')) {
-                    const noteId = href.replace('leafbook-note:', '');
-                    return (
-                      <span
-                        onClick={() => onSelectNote(noteId)}
-                        className="cursor-pointer underline decoration-dotted underline-offset-2 text-[#7CEA9C] hover:text-emerald-300"
-                      >
-                        {children}
-                      </span>
-                    );
-                  }
-                  if (href?.startsWith('leafbook-missing:')) {
-                    return (
-                      <span
-                        title="No note with this title yet"
-                        className="cursor-help underline decoration-dotted decoration-red-500/50 underline-offset-2 text-red-400/70"
-                      >
-                        {children}
-                      </span>
-                    );
-                  }
-                  return <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>;
-                },
-              }}
-            >
-              {renderableContent}
-            </ReactMarkdown>
-          )}
-        </div>
-      ) : (
-        <div className="relative flex-1 flex flex-col min-h-0">
-          <textarea 
-            ref={textareaRef}
-            placeholder="Write your thoughts... type [[ to link a note"
-            value={activeNote.content}
-            onChange={handleContentChange}
-            onKeyDown={handleContentKeyDown}
-            onClick={(e) => checkForLinkTrigger(activeNote.content, e.currentTarget.selectionStart)}
+      {/* 4. WRITING AREA – takes all remaining space */}
+      <div className="flex-1 min-h-0">
+        {isPreview ? (
+          <div
             style={
               activeNote.content 
                 ? { textShadow: '-1px -0.5px 0px rgba(34, 211, 238, 0.35), 1px 0.5px 0px rgba(52, 211, 153, 0.3)' } 
                 : {}
             }
-            className="bg-transparent text-[#f8fafc] placeholder-zinc-800 focus:outline-none text-lg leading-relaxed flex-1 resize-none font-mono tracking-wide pt-4 caret-cyan-400 selection:bg-cyan-500/10"
-          ></textarea>
+            className="h-full overflow-y-auto text-[#f8fafc] text-lg leading-relaxed pt-4 font-mono tracking-wide
+              [&_h1]:text-2xl [&_h1]:font-extrabold [&_h1]:mb-3 [&_h1]:mt-2
+              [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-2 [&_h2]:mt-4
+              [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mb-2 [&_h3]:mt-3
+              [&_p]:mb-3
+              [&_strong]:font-bold
+              [&_em]:italic
+              [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-3
+              [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-3
+              [&_li]:mb-1
+              [&_a]:underline [&_a]:underline-offset-2
+              [&_code]:bg-black/30 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-sm [&_code]:text-[0.9em]
+              [&_pre]:bg-black/30 [&_pre]:border [&_pre]:border-white/10 [&_pre]:p-4 [&_pre]:rounded-sm [&_pre]:overflow-x-auto [&_pre]:mb-3
+              [&_blockquote]:border-l-2 [&_blockquote]:border-white/20 [&_blockquote]:pl-4 [&_blockquote]:opacity-70 [&_blockquote]:italic
+              [&_hr]:border-white/10 [&_hr]:my-4"
+          >
+            {activeNote.content.trim() === '' ? (
+              <p className="opacity-40 italic">Nothing to preview yet.</p>
+            ) : (
+              <ReactMarkdown
+                components={{
+                  a: ({ href, children }) => {
+                    if (href?.startsWith('leafbook-note:')) {
+                      const noteId = href.replace('leafbook-note:', '');
+                      return (
+                        <span
+                          onClick={() => onSelectNote(noteId)}
+                          className="cursor-pointer underline decoration-dotted underline-offset-2 text-[#7CEA9C] hover:text-emerald-300"
+                        >
+                          {children}
+                        </span>
+                      );
+                    }
+                    if (href?.startsWith('leafbook-missing:')) {
+                      return (
+                        <span
+                          title="No note with this title yet"
+                          className="cursor-help underline decoration-dotted decoration-red-500/50 underline-offset-2 text-red-400/70"
+                        >
+                          {children}
+                        </span>
+                      );
+                    }
+                    return <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>;
+                  },
+                }}
+              >
+                {renderableContent}
+              </ReactMarkdown>
+            )}
+          </div>
+        ) : (
+          <div className="relative h-full">
+            <textarea 
+              ref={textareaRef}
+              placeholder="Write your thoughts... type [[ to link a note"
+              value={activeNote.content}
+              onChange={handleContentChange}
+              onKeyDown={handleContentKeyDown}
+              onClick={(e) => checkForLinkTrigger(activeNote.content, e.currentTarget.selectionStart)}
+              style={
+                activeNote.content 
+                  ? { textShadow: '-1px -0.5px 0px rgba(34, 211, 238, 0.35), 1px 0.5px 0px rgba(52, 211, 153, 0.3)' } 
+                  : {}
+              }
+              className="absolute inset-0 w-full h-full bg-transparent text-[#f8fafc] placeholder-zinc-800 focus:outline-none text-lg leading-relaxed resize-none font-mono tracking-wide pt-4 caret-cyan-400 selection:bg-cyan-500/10"
+            ></textarea>
 
-          {linkQuery !== null && (
-            <div className="absolute left-0 bottom-2 w-full max-w-sm rounded-sm border border-emerald-400/25 bg-[#070f0d]/95 backdrop-blur-xl shadow-[0_10px_40px_rgba(0,0,0,0.5),0_0_30px_rgba(16,185,129,0.1)] overflow-hidden z-20">
-              <div className="px-3 py-1.5 border-b border-white/[0.06] text-[9px] font-mono text-zinc-500 uppercase tracking-widest">
-                link a note {linkQuery && `— "${linkQuery}"`}
-              </div>
-              {linkMatches.length === 0 ? (
-                <div className="px-3 py-3 text-[11px] font-mono text-zinc-600 italic">no matching notes</div>
-              ) : (
-                <div className="py-1">
-                  {linkMatches.map((n, i) => (
-                    <div
-                      key={n.id}
-                      onMouseDown={(e) => { e.preventDefault(); insertLink(n.title || 'Untitled Entry'); }}
-                      onMouseEnter={() => setLinkSelectedIndex(i)}
-                      className={`px-3 py-1.5 text-xs font-mono cursor-pointer truncate ${
-                        i === linkSelectedIndex ? 'bg-emerald-400/10 text-[#7CEA9C]' : 'text-zinc-300'
-                      }`}
-                    >
-                      {n.title.trim() === '' ? 'Untitled Entry' : n.title}
-                    </div>
-                  ))}
+            {linkQuery !== null && (
+              <div className="absolute left-0 bottom-2 w-full max-w-sm rounded-sm border border-emerald-400/25 bg-[#070f0d]/95 backdrop-blur-xl shadow-[0_10px_40px_rgba(0,0,0,0.5),0_0_30px_rgba(16,185,129,0.1)] overflow-hidden z-20">
+                <div className="px-3 py-1.5 border-b border-white/[0.06] text-[9px] font-mono text-zinc-500 uppercase tracking-widest">
+                  link a note {linkQuery && `— "${linkQuery}"`}
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                {linkMatches.length === 0 ? (
+                  <div className="px-3 py-3 text-[11px] font-mono text-zinc-600 italic">no matching notes</div>
+                ) : (
+                  <div className="py-1">
+                    {linkMatches.map((n, i) => (
+                      <div
+                        key={n.id}
+                        onMouseDown={(e) => { e.preventDefault(); insertLink(n.title || 'Untitled Entry'); }}
+                        onMouseEnter={() => setLinkSelectedIndex(i)}
+                        className={`px-3 py-1.5 text-xs font-mono cursor-pointer truncate ${
+                          i === linkSelectedIndex ? 'bg-emerald-400/10 text-[#7CEA9C]' : 'text-zinc-300'
+                        }`}
+                      >
+                        {n.title.trim() === '' ? 'Untitled Entry' : n.title}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
+      {/* 5. Backlinks (if any) */}
       {backlinks.length > 0 && (
-        <div className="border-t border-emerald-950/30 pt-3 -mb-1">
+        <div className="border-t border-emerald-950/30 pt-3">
           <div className="text-[9px] font-mono uppercase tracking-widest text-zinc-600 mb-1.5">
             Linked from ({backlinks.length})
           </div>
@@ -550,13 +551,14 @@ export default function EditorCanvas({
         </div>
       )}
 
-      <div className="flex justify-between items-center text-[10px] font-mono border-t border-emerald-950/30 pt-4 text-zinc-500 tracking-widest">
+      {/* 6. Status bar – always bottom */}
+      <div className="border-t border-emerald-950/30 pt-4 flex justify-between items-center text-[10px] font-mono text-zinc-500 tracking-widest">
         <div>
           WORDS: <span className="text-zinc-300">{wordCount}</span>
         </div>
-        <div className="text-[#7CEA9C]/80 flex items-center gap-2 font-semibold">
-          <span className="w-1 h-1 rounded-full bg-[#7CEA9C] shadow-[0_0_6px_#7CEA9C] animate-pulse"></span>
-          SECURE_CLOUD_LINKED
+        <div className="text-zinc-400 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/80" />
+          Saved to Cloud
         </div>
       </div>
     </div>
